@@ -1,0 +1,16 @@
+{
+  "name": "clojure-todo-fullstack",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "frontend:watch": "shadow-cljs watch frontend",
+    "frontend:build": "shadow-cljs release frontend"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.28.20"
+  }
+}

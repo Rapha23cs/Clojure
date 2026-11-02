@@ -1,0 +1,33 @@
+# Byte-compiled / JVM
+*.class
+target/
+classes/
+.cpcache/
+
+# Shadow-CLJS / Node
+.shadow-cljs/
+node_modules/
+package-lock.json
+resources/public/js/compiled/
+
+# Database (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Editors and IDEs
+.idea/
+*.iml
+.vscode/
+.calva/
+.clj-kondo/
+.lsp/
+.cider-repl
+.nrepl-port
+
+# OS generated files
+.DS_Store
+Thumbs.db

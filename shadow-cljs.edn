@@ -1,0 +1,11 @@
+;; shadow-cljs configuration
+{:source-paths ["src/frontend"]
+ :dependencies [[reagent "2.0.1"]
+                [cljs-http "0.1.46"]]
+ :builds
+ {:frontend
+  {:target :browser
+   :output-dir "resources/public/js/compiled"
+   :asset-path "/js/compiled"
+   :modules {:main {:init-fn frontend.core/init!}}
+   :devtools {:after-load frontend.core/reload!}}}}
