@@ -1,15 +1,27 @@
 (ns todo.backend.core
   (:require [reitit.ring :as ring]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [ring.middleware.params :refer [wrap-params]]
             [todo.backend.handler :as handler])
   (:gen-class))
 
 (def app-routes
   (ring/router
-   [["/api/hello" {:get {:handler handler/hello-handler}}]]))
+   ["/api"
+    ["/hello" {:get {:handler handler/hello-handler}}]
+    ["/todos" {:get {:handler handler/list-todos-handler}
+               :post {:handler handler/create-todo-handler}}]]))
 
 (def app
-  (ring/ring-handler app-routes (ring/create-default-handler)))
+  (ring/ring-handler
+   app-routes
+   (ring/create-default-handler)
+   {:middleware [wrap-json-response
+                 [wrap-json-body {:keywords? true}]
+                 wrap-params
+                 wrap-keyword-params]}))
 
 (defn start-server [port]
   (let [server (jetty/run-jetty #'app {:host "127.0.0.1" :port port :join? false})]
