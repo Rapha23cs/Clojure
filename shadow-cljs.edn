@@ -1,11 +1,12 @@
 ;; shadow-cljs configuration
-{:source-paths ["src/frontend"]
+{:source-paths ["src"]
  :dependencies [[reagent "2.0.1"]
                 [cljs-http "0.1.46"]]
+ :dev-http {8000 "resources/public"}
  :builds
  {:frontend
   {:target :browser
    :output-dir "resources/public/js/compiled"
    :asset-path "/js/compiled"
-   :modules {:main {:init-fn frontend.core/init!}}
-   :devtools {:after-load frontend.core/reload!}}}}
+   :modules {:main {:init-fn todo.frontend.core/init!}}
+   :devtools {:after-load todo.frontend.core/reload!}}}}
