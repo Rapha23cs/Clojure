@@ -1,6 +1,7 @@
 (ns todo.backend.core
   (:require [reitit.ring :as ring]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.cors :refer [wrap-cors]]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
@@ -15,13 +16,16 @@
                :post {:handler handler/create-todo-handler}}]]))
 
 (def app
-  (ring/ring-handler
-   app-routes
-   (ring/create-default-handler)
-   {:middleware [wrap-json-response
-                 [wrap-json-body {:keywords? true}]
-                 wrap-params
-                 wrap-keyword-params]}))
+  (-> (ring/ring-handler
+       app-routes
+       (ring/create-default-handler)
+       {:middleware [wrap-json-response
+                     [wrap-json-body {:keywords? true}]
+                     wrap-params
+                     wrap-keyword-params]})
+      (wrap-cors :access-control-allow-origin [#".*"]
+                 :access-control-allow-methods [:get :put :post :delete :options]
+                 :access-control-allow-headers ["Content-Type" "Authorization"])))
 
 (defn start-server [port]
   (let [server (jetty/run-jetty #'app {:host "127.0.0.1" :port port :join? false})]
