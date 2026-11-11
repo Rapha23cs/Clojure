@@ -11,9 +11,16 @@
    :body {:todos (db/get-all-todos)}})
 
 (defn create-todo-handler [{:keys [body]}]
-  (let [title (:title body)]
-    (if (and (string? title) (not (str/blank? title)))
-      {:status 201
-       :body (db/create-todo (select-keys body [:title :description]))}
+  (let [{:keys [title description]} body]
+    (cond
+      (not (and (string? title) (not (str/blank? title))))
       {:status 400
-       :body {:error "O 'título' (title) é obrigatório"}})))
+       :body {:error "O 'título' (title) é obrigatório"}}
+
+      (not (or (nil? description) (string? description)))
+      {:status 400
+       :body {:error "A descrição (description) deve ser um texto"}}
+
+      :else
+      {:status 201
+       :body (db/create-todo body)})))

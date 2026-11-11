@@ -5,6 +5,7 @@
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
+            [todo.backend.db :as db]
             [todo.backend.handler :as handler])
   (:gen-class))
 
@@ -28,6 +29,7 @@
                  :access-control-allow-headers ["Content-Type" "Authorization"])))
 
 (defn start-server [port]
+  (db/initialize-database!)
   (let [server (jetty/run-jetty #'app {:host "127.0.0.1" :port port :join? false})]
     (println "Servidor iniciado na porta" port)
     server))
