@@ -6,7 +6,10 @@
             [reagent.core :as r]
             [reagent.dom.client :as rdom]))
 
-(def api-base-url "http://localhost:3000/api/todos")
+(def api-base-url
+  (if (and (exists? js/window) (not= (.. js/window -location -port) "8000"))
+    "/api/todos"
+    "http://localhost:3000/api/todos"))
 
 (defonce app-state
   (r/atom {:todos []
@@ -44,13 +47,29 @@
                :error "Erro ao salvar tarefa na API.")))))
 
 (defn toggle-todo! [id]
-  (swap! app-state update :todos
-         (fn [todos]
-           (mapv (fn [todo]
-                   (if (= (:id todo) id)
-                     (update todo :completed not)
-                     todo))
-                 todos))))
+  (go
+    (let [response (<! (http/patch (str api-base-url "/" id "/toggle")
+                                   {:with-credentials? false}))]
+      (if (:success response)
+        (let [updated (:body response)]
+          (swap! app-state update :todos
+                 (fn [todos]
+                   (mapv (fn [todo]
+                           (if (= (:id todo) id)
+                             updated
+                             todo))
+                         todos))))
+        (swap! app-state assoc :error "Erro ao atualizar status da tarefa na API.")))))
+
+(defn delete-todo! [id]
+  (go
+    (let [response (<! (http/delete (str api-base-url "/" id)
+                                    {:with-credentials? false}))]
+      (if (:success response)
+        (swap! app-state update :todos
+               (fn [todos]
+                 (filterv #(not= (:id %) id) todos)))
+        (swap! app-state assoc :error "Erro ao excluir tarefa na API.")))))
 
 (defn header []
   (let [{:keys [loading?]} @app-state]
@@ -97,13 +116,17 @@
 
 (defn todo-item [{:keys [id title description completed]}]
   [:li.todo-item {:class (when completed "completed")}
-   [:input {:type "checkbox"
-            :checked (boolean completed)
-            :on-change #(toggle-todo! id)}]
+   [:input.todo-checkbox {:type "checkbox"
+                          :checked (boolean completed)
+                          :on-change #(toggle-todo! id)}]
    [:div.todo-content
     [:div.todo-title title]
     (when-not (str/blank? description)
-      [:div.todo-description description])]])
+      [:div.todo-description description])]
+   [:button.delete-button
+    {:title "Excluir tarefa"
+     :on-click #(delete-todo! id)}
+    "×"]])
 
 (defn todo-list []
   (let [{:keys [todos loading?]} @app-state]

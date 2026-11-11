@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "frontend:watch": "shadow-cljs watch frontend",
-    "frontend:build": "shadow-cljs release frontend"
+    "frontend:compile": "shadow-cljs compile frontend",
+    "frontend:build": "shadow-cljs release frontend",
+    "backend:run": "clojure -M:run"
   },
   "dependencies": {
     "react": "^19.0.0",

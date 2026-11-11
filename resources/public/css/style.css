@@ -147,6 +147,31 @@ h1 {
   flex: 1;
 }
 
+.todo-checkbox {
+  margin-top: 0.35rem;
+  cursor: pointer;
+  accent-color: #3498db;
+}
+
+.delete-button {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 1.35rem;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  align-self: flex-start;
+}
+
+.delete-button:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
 .todo-title {
   font-weight: 600;
   font-size: 1.05rem;

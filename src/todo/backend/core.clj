@@ -5,6 +5,7 @@
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
+            [ring.util.response :as response]
             [todo.backend.db :as db]
             [todo.backend.handler :as handler])
   (:gen-class))
@@ -14,18 +15,29 @@
    ["/api"
     ["/hello" {:get {:handler handler/hello-handler}}]
     ["/todos" {:get {:handler handler/list-todos-handler}
-               :post {:handler handler/create-todo-handler}}]]))
+               :post {:handler handler/create-todo-handler}}]
+    ["/todos/:id" {:get {:handler handler/get-todo-handler}
+                   :put {:handler handler/update-todo-handler}
+                   :patch {:handler handler/update-todo-handler}
+                   :delete {:handler handler/delete-todo-handler}}]
+    ["/todos/:id/toggle" {:patch {:handler handler/toggle-todo-handler}
+                          :put {:handler handler/toggle-todo-handler}}]]))
 
 (def app
   (-> (ring/ring-handler
        app-routes
-       (ring/create-default-handler)
+       (ring/routes
+        (ring/create-resource-handler {:path "/"})
+        (ring/create-default-handler
+         {:not-found (fn [_]
+                       (or (response/resource-response "index.html" {:root "public"})
+                           {:status 404 :body "Not Found"}))}))
        {:middleware [wrap-json-response
                      [wrap-json-body {:keywords? true}]
                      wrap-params
                      wrap-keyword-params]})
       (wrap-cors :access-control-allow-origin [#".*"]
-                 :access-control-allow-methods [:get :put :post :delete :options]
+                 :access-control-allow-methods [:get :put :post :delete :patch :options]
                  :access-control-allow-headers ["Content-Type" "Authorization"])))
 
 (defn start-server [port]
